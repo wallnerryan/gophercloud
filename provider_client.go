@@ -29,5 +29,6 @@ type ProviderClient struct {
 // AuthenticatedHeaders returns a map of HTTP headers that are common for all
 // authenticated service requests.
 func (client *ProviderClient) AuthenticatedHeaders() map[string]string {
+	//return map[string]string{"X-Auth-Token": client.TokenID, "X-Auth-Project-Id" : "admin", "Content-Type" : "application/json", "Accept" : "application/json"}
 	return map[string]string{"X-Auth-Token": client.TokenID}
 }

@@ -24,6 +24,8 @@ type ListOpts struct {
 	Marker            string `q:"marker"`
 	SortKey           string `q:"sort_key"`
 	SortDir           string `q:"sort_dir"`
+	IPAddress		  string `q:"address"`
+	ServerID		  string `q:"server_id"`
 }
 
 // List returns a Pager which allows you to iterate over a collection of
@@ -51,9 +53,18 @@ type CreateOpts struct {
 	TenantID          string
 }
 
+//wallnerryan
+// Creating a floating ip via compute api for nova-network
+// talks to a different API, networkId is not needed.
+type CreateNovaNetIpOpts struct {
+	FloatingIP        string
+}
+
 var (
 	errFloatingNetworkIDRequired = fmt.Errorf("A NetworkID is required")
 	errPortIDRequired            = fmt.Errorf("A PortID is required")
+	errServerIDRequired = fmt.Errorf("A ServerID is required")
+	errIPAddressRequired = fmt.Errorf("A IPAddress is required")
 )
 
 // Create accepts a CreateOpts struct and uses the values provided to create a
@@ -123,6 +134,97 @@ func Create(c *gophercloud.ServiceClient, opts CreateOpts) CreateResult {
 
 	return res
 }
+
+func CreateNovaNetIp(c *gophercloud.ServiceClient, opts CreateNovaNetIpOpts) CreateResult {
+	var res CreateResult
+	
+	// Define structures
+	type floatingIP struct {
+		FloatingIP        string `json:"address,omitempty"`
+	}
+	type request struct {
+		FloatingIP floatingIP `json:"floating_ip"`
+	}
+
+	// Populate request body
+	reqBody := request{FloatingIP: floatingIP{
+	}}
+
+	// Send request to API
+	_, res.Err = perigee.Request("POST", resourceNovaNetFloatingIpURL(c), perigee.Options{
+		MoreHeaders: c.AuthenticatedHeaders(),
+		ReqBody:     &reqBody,
+		Results:     &res.Body,
+		OkCodes:     []int{200,201},
+	})
+
+	return res
+}
+
+//wallnerryan
+// Creating a floating ip via compute api for nova-network
+// talks to a different API, networkId is not needed.
+type AddNovaNetIpOpts struct {
+	ServerID          string
+	IPAddress         string
+	Pool			  string
+}
+
+func AddNovaNetIp(c *gophercloud.ServiceClient, opts AddNovaNetIpOpts) CreateResult {
+	var res CreateResult
+
+	// Validate
+	if opts.ServerID == "" {
+		res.Err = errServerIDRequired
+		return res
+	}
+	
+	// Validate
+	if opts.IPAddress == "" {
+		res.Err = errIPAddressRequired
+		return res
+	}
+	
+	// Define structures
+	type addFloatingIP struct {
+		ServerID       string `json:"server_id,omitempty"`
+		IPAddress	   string `json:"address,omitempty"`
+		Pool		   string `json:"pool,omitempty"`
+	}
+	type request struct {
+		AddFloatingIP addFloatingIP `json:"addFloatingIp"`
+	}
+
+	// Populate request body
+	reqInnerJson := make(map[string]interface{})
+	reqInnerJson["address"] = opts.IPAddress
+	//reqInnerJson["pool"] = "public"
+	reqBody := map[string]interface{}{"addFloatingIp": reqInnerJson }
+	fmt.Println(reqBody)
+
+	// Send request to API
+	_, res.Err = perigee.Request("POST", addNovaNetFloatingIpURL(c, opts.ServerID), perigee.Options{
+		Results:     &res.Body,
+		ReqBody:     reqBody,
+		MoreHeaders: c.AuthenticatedHeaders(),
+		OkCodes:     []int{202},
+	})
+
+	return res
+}
+
+// *FixME
+// Get all floating ips (doesnt seem to return anything?
+func GetNovaNetIps(c *gophercloud.ServiceClient) GetResult {
+	var res GetResult
+	_, res.Err = perigee.Request("GET", resourceNovaNetFloatingIpURL(c), perigee.Options{
+		MoreHeaders: c.AuthenticatedHeaders(),
+		Results:     &res.Body,
+		OkCodes:     []int{201},
+	})
+	return res
+}
+
 
 // Get retrieves a particular floating IP resource based on its unique ID.
 func Get(c *gophercloud.ServiceClient, id string) GetResult {

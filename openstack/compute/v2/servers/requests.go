@@ -181,6 +181,9 @@ func (opts CreateOpts) ToServerCreateMap() (map[string]interface{}, error) {
 			}
 		}
 		server["networks"] = networks
+		
+		//FixME! need to add to server struct/opts, doesnt work right now
+		server["key_name"] = "keypair1"
 	}
 
 	return map[string]interface{}{"server": server}, nil
