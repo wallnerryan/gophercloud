@@ -2,7 +2,9 @@ package rules
 
 import "github.com/rackspace/gophercloud"
 
-const rootPath = "os-security-group-rules"
+const rootPath = "security-group-rules"
+//For future support without neutron
+const rootComputAPIPath = "os-security-group-rules"
 
 func rootURL(c *gophercloud.ServiceClient) string {
 	return c.ServiceURL(rootPath)
