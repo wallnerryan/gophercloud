@@ -131,6 +131,9 @@ type CreateOpts struct {
 
 	// ConfigDrive [optional] enables metadata injection through a configuration drive.
 	ConfigDrive bool
+	
+	// KeyPair
+	KeyPair		string
 }
 
 // ToServerCreateMap assembles a request body based on the contents of a CreateOpts.
@@ -181,6 +184,9 @@ func (opts CreateOpts) ToServerCreateMap() (map[string]interface{}, error) {
 			}
 		}
 		server["networks"] = networks
+		
+		//FixME! need to add to server struct/opts, doesnt work right now
+		server["key_name"] = opts.KeyPair
 	}
 
 	return map[string]interface{}{"server": server}, nil

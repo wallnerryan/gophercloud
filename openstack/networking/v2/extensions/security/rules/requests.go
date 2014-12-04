@@ -17,8 +17,8 @@ type ListOpts struct {
 	Direction      string `q:"direction"`
 	EtherType      string `q:"ethertype"`
 	ID             string `q:"id"`
-	PortRangeMax   int    `q:"port_range_max"`
-	PortRangeMin   int    `q:"port_range_min"`
+	PortRangeMax   string    `q:"port_range_max"`
+	PortRangeMin   string    `q:"port_range_min"`
 	Protocol       string `q:"protocol"`
 	RemoteGroupID  string `q:"remote_group_id"`
 	RemoteIPPrefix string `q:"remote_ip_prefix"`
@@ -79,13 +79,13 @@ type CreateOpts struct {
 	// Optional. The maximum port number in the range that is matched by the
 	// security group rule. The PortRangeMin attribute constrains the PortRangeMax
 	// attribute. If the protocol is ICMP, this value must be an ICMP type.
-	PortRangeMax int
+	PortRangeMax string
 
 	// Optional. The minimum port number in the range that is matched by the
 	// security group rule. If the protocol is TCP or UDP, this value must be
 	// less than or equal to the value of the PortRangeMax attribute. If the
 	// protocol is ICMP, this value must be an ICMP type.
-	PortRangeMin int
+	PortRangeMin string
 
 	// Optional. The protocol that is matched by the security group rule. Valid
 	// values are "tcp", "udp", "icmp" or an empty string.
@@ -129,8 +129,8 @@ func Create(c *gophercloud.ServiceClient, opts CreateOpts) CreateResult {
 		Direction      string `json:"direction"`
 		EtherType      string `json:"ethertype"`
 		SecGroupID     string `json:"security_group_id"`
-		PortRangeMax   int    `json:"port_range_max,omitempty"`
-		PortRangeMin   int    `json:"port_range_min,omitempty"`
+		PortRangeMax   string    `json:"port_range_max,omitempty"`
+		PortRangeMin   string    `json:"port_range_min,omitempty"`
 		Protocol       string `json:"protocol,omitempty"`
 		RemoteGroupID  string `json:"remote_group_id,omitempty"`
 		RemoteIPPrefix string `json:"remote_ip_prefix,omitempty"`
